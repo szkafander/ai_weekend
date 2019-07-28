@@ -31,7 +31,7 @@ def plot_preds(
     preds = model.predict(gx)
     
     pl.imshow(
-            np.flipud(np.reshape(preds.clip(0, 1), gx_0.shape)),
+            np.flipud(np.reshape(preds, gx_0.shape)),
             extent=[min_x_0, max_x_0, min_x_1, max_x_1]
         )
     

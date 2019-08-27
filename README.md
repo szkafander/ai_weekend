@@ -16,3 +16,9 @@ ReLu: http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolu
 pReLu: http://www.cv-foundation.org/openaccess/content_iccv_2015/papers/He_Delving_Deep_into_ICCV_2015_paper.pdf
 VAE: http://arxiv.org/pdf/1312.6114
 VGG: http://arxiv.org/pdf/1409.1556
+
+# cellular automata paper
+https://arxiv.org/pdf/1809.02942.pdf
+
+they learn GOL with a single conv kernel with a large deep mlp on top
+we did it with two conv kernels and 3 mlp nodes

@@ -20,5 +20,9 @@ VGG: http://arxiv.org/pdf/1409.1556
 # cellular automata paper
 https://arxiv.org/pdf/1809.02942.pdf
 
-they learn GOL with a single conv kernel with a large deep mlp on top
-we did it with two conv kernels and 3 mlp nodes
+they learn GOL with a single conv kernel with a large deep mlp on top.
+we did it with two conv kernels and 3 mlp nodes.
+
+ideas:
+* find a mini-network that is more efficient than your stochastic CA
+* reinforcement-learn a CA surrogate based on polarized-light micrographs

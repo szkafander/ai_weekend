@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Console application" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="default">
+				<Option output="recca.exe" prefix_auto="0" extension_auto="0" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectResourceIncludeDirsRelation="1" />
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="default;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add directory="C:\include" />
+			<Add directory="include\fparser" />
+			<Add directory="C:\include\cv" />
+			<Add directory="C:\include\highgui" />
+			<Add directory="C:\include\cxcore" />
+		</Compiler>
+		<Linker>
+			<Add library="C:\lib\cxcore.lib" />
+			<Add library="C:\lib\highgui.lib" />
+			<Add library="lib\libfparser.a" />
+		</Linker>
+		<Unit filename="CprobImage.cpp" />
+		<Unit filename="CprobImage.h" />
+		<Unit filename="ObjectData.cpp" />
+		<Unit filename="ObjectData.h" />
+		<Unit filename="automata.cpp" />
+		<Unit filename="automata.h" />
+		<Unit filename="carunner.cpp" />
+		<Unit filename="carunner.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="state.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

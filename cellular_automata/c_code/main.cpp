@@ -18,23 +18,45 @@ bool LoadFile( char *, Material&, Structure&, Process& );
 
 int main( void )
 {
+    // material data struct - this is just a struct that holds some numbers
+    // implemented in automata.cpp
     Material mat;
+
+    // structure data struct - just some constants
+    // implemented in automata.cpp
     Structure str;
+
+    // process struct - not quite sure yet what this holds
+    // implemented here
     Process pro;
+
+    // the CA object. this has methods for init, run, save, destroy, etc.
+    // implemented in carunner.cpp
     CARunner car;
 
+    // loads config
     if( !LoadFile( "material.txt", mat, str, pro ) )
     {
-        printf( "Az adatfájl nem elérhetõ!\n" );
+        printf( "Az adatfajl nem elerheto!\n" );
         return( 0 );
     }
+
+    // initializes the CA runner
     car.Init( pro.W, pro.H, pro.steps, pro.sample, pro.termcrit );
+
+    // runs the CA runner
     car.Run( pro.proj, mat, str, pro.T );
+
+    // saves stuff
     car.SaveMeasuredData();
+
+    // calls destructor
     car.Destroy();
+
 	return 0;
 }
 
+// loads config file that sets up the material, structure and process
 bool LoadFile( char *pFilename, Material &mat, Structure &str, Process &pro )
 {
     FILE *file = fopen( pFilename, "rt" );

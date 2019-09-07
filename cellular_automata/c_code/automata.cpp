@@ -6,23 +6,33 @@
 
 void Automata::Init( int iW, int iH )
 {
+    // reset random number gen seed
     srand( time( NULL ) );
 
+    // width and height of universe
     width  = iW;
     height = iH;
 
+    // buffer arrays, hold universe data at t0 and t-1
+    // these are arrays of the State struct
+    // TODO
+    // the state struct holds P, D and O vars. no idea what these can be.
     oldarray = new State[width*height];
     newarray = new State[width*height];
+
+    // TODO
+    // probability array I guess
     proarray = new float[width*height];
 
+    // openCV vis boilerplate - ignore
     cvNamedWindow( "CA", 1 );
-
     CvSize ocvsize;
     ocvsize.width = width;
     ocvsize.height = height;
     ocvimage = cvCreateImage( ocvsize, IPL_DEPTH_8U, 3 );
 }
 
+// destructor, don't bother
 void Automata::Destroy( void )
 {
     delete []oldarray;
@@ -33,17 +43,34 @@ void Automata::Destroy( void )
     cvDestroyWindow( "CA" );
 }
 
+// enforces boundary conditions - important
+// would be more understandable written with the C, N, S, E, W notation
 void Automata::BoundaryCondition( void )
 {
+    // this is the BC code
+    // it operates on an 1D array, thus the funky indexing
+    // let's see what it does
+    // iterate along y coord
     for( int i = 0; i < height; i++ )
     {
+        // I believe this enforces a periodic BC on the 2D Cartesian universe
+        // this is being called all over the main algo, so probably important
+
+        // every n X width index is probably a point along the vertical boundary
+        // these two lines should sync the two vertical boundaries of newarray
+        // TODO
+        // I don't get the width - 2 and width - 1 jizz
         newarray[ i*width ] = newarray[ i*width + ( width-2 ) ];
         newarray[ i*width + ( width-1 ) ] = newarray[ i*width + 1   ];
+
+        // the same synching on the proarray
         proarray[ i*width ] = proarray[ i*width + ( width-2 ) ];
         proarray[ i*width + ( width-1 ) ] = proarray[ i*width + 1   ];
     }
     for( int i = 0; i < width; i++ )
     {
+        // TODO
+        // the same on horizontal boundaries??
         newarray[ i ] = newarray[ ( height-2 )*width + i ];
         newarray[ ( height-1 )*width + i ] = newarray[ width + i ];
         proarray[ i ] = proarray[ ( height-2 )*width + i ];
@@ -51,11 +78,16 @@ void Automata::BoundaryCondition( void )
     }
 }
 
+// copies oldarray to newarray
+// does buffer update
 void Automata::Update( void )
 {
     for( int i = 0; i < width*height; i++ ) oldarray[i] = newarray[i];
 }
 
+// update private attrs C, N, S, W, E given 2D subs
+// center, north, south, west, east neighbors of x, y
+// after Position(x, y), neighborhood indices can index into member arrays
 void Automata::Position( int x, int y )
 {
     C = y*width+x;
@@ -65,15 +97,20 @@ void Automata::Position( int x, int y )
     E = y*width+(x+1);
 }
 
+// sets material from im
 void Automata::SetMaterial( Material im )
 {
     mat = im;
 }
 
+// important
+// sets private Probability attr pro's attrs
+// calculates these probabilities based on material props
 void Automata::Probabilities( void )
 {
     int B = 0;
 
+    // why are these recomputed at every call? because T can change
     pro.Se = exp( -mat.Es/8.314/(T+273.0) );
     pro.Ag = exp( -mat.Qag/8.314/(T+273.0) );
     pro.Abg = exp( -mat.Bag/8.314/(T+273.0) );
@@ -94,21 +131,31 @@ void Automata::Probabilities( void )
     pro.An[1] = exp( -mat.Qan[1]/8.314/(T+273.0) );
     pro.Abn[1] = exp( -mat.Ban[1]/8.314/(T+273.0) );
 
+    // this maps proarray based on some messed up formula
     for( int y = 1; y < height-1; y++ )
     {
         for( int x = 1; x < width-1; x++ )
         {
             Position( x, y );
             B = 0;
+            // this is the formula
+            // these 4 lines sum up the number of neighbors that have states
+            // that do not equal the state of the center pixel
             if( oldarray[C].O.l != oldarray[N].O.l ) B++;
             if( oldarray[C].O.l != oldarray[S].O.l ) B++;
             if( oldarray[C].O.l != oldarray[W].O.l ) B++;
             if( oldarray[C].O.l != oldarray[E].O.l ) B++;
+            // TODO
+            // the sum is used in the exponent here
+            // this is some probability update rule that takes a 0-1 random
+            // float??
             proarray[C] = ( (float)rand() / (float)RAND_MAX ) * pow( pro.Rbg[oldarray[C].P], (float)B );
         }
     }
 }
 
+// the following 3 methods can be implemented with convolution
+// this appears to be the above different neighbor counting routine factored out
 int Automata::DifferentNeighbour( void )
 {
     int count = 0;
@@ -119,6 +166,8 @@ int Automata::DifferentNeighbour( void )
     return( count );
 }
 
+// this counts the deformed neighbors, 
+// i.e., those neighbor pixels for which D = 1
 int Automata::DeformedNeighbour( void )
 {
     int count = 0;
@@ -129,6 +178,7 @@ int Automata::DeformedNeighbour( void )
     return( count );
 }
 
+// this counts the neighbor pixels that have the same phase as the center pixel
 int Automata::PhaseNeighbour( void )
 {
     int count = 0;
@@ -139,8 +189,17 @@ int Automata::PhaseNeighbour( void )
     return( count );
 }
 
+// important
+// the following 5 methods are the rulesets
+// these are called on the universe sequentially
+// must be fun to compress these into a few conv layers
+// *** *** *** main task here is to transpile these rulesets *** *** ***
 void Automata::AllotropicNucleation( void )
 {
+    // TODO
+    // transpiling this is bug-prone
+    // should we wait with transpilation until we understand what's 
+    // going on here? we need a guy who can sanity check
     float GE;
     if( T <= mat.Ta && oldarray[C].P == 0 ) GE = 0;
     if( T <= mat.Ta && oldarray[C].P == 1 ) GE = mat.Gg[0] * ( 1.0 - exp( - mat.Kg[0] * ( mat.Ta - T ) ) );
@@ -275,6 +334,8 @@ void Automata::GrainCoarsening( void )
     }
 }
 
+// important
+// this is the order in which the rulesets are called
 void Automata::Step( float Ti )
 {
     T = Ti;

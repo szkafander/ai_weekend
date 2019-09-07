@@ -10,9 +10,18 @@
 
 void CARunner::Init( int W = 512, int H = 512, int S = 10000, int A = 100, int C = 1 )
 {
+    // number of steps
     steps    = S;
+
+    // TODO
+    // number of samples??
     sample   = A;
+
+    // TODO
+    // termination criterion??
     termcrit = C;
+    
+    // init results struct - only holds some data
     res = new Results[steps+1];
     for( int i = 0; i < steps+1; i++ )
     {
@@ -24,24 +33,40 @@ void CARunner::Init( int W = 512, int H = 512, int S = 10000, int A = 100, int C
         res[i].Fr[2] = 1.0;
         res[i].T = 0.0;
     }
+
+    // inits the CA object
+    // the CA object is probably the essence of this
+    // investigation should focus on the workings of this object
     ca.Init( W, H );
+
+    // inits the cprobimage
+    // I think the cprobimage is only used to measure stuff in the universe 
+    // caprobimage is not directly related to the CA
     cimg.Init( W, H );
 }
 
+// dispatch method to check which termination criterion is reached
 bool CARunner::TermCriteria( int i, int s )
 {
     bool re = false;
     switch( termcrit )
     {
+        // reached the end of steps
         case TERMINATE_TIME:
             if( s < steps ) re = true;
             break;
+        // TODO
+        // no idea
         case TERMINATE_RFULL:
             if( res[s].Fr[i] < 1.0 ) re = true;
             break;
+        // TODO
+        // no idea
         case TERMINATE_AFULL:
             if( res[s].Fa[i] < 1.0 ) re = true;
             break;
+        // TODO
+        // no idea
         case TERMINATE_BFULL:
             if( 1.0 - res[s].Fa[i] < 1.0 ) re = true;
             break;

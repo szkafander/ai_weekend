@@ -1,5 +1,8 @@
 #include "CprobImage.h"
 
+// this is probably irrelevant. we'll use some clever binary morphology tricks
+// to do this. I'll skip for now.
+
 void CprobImage::Init( int W, int H )
 {
     width = W;

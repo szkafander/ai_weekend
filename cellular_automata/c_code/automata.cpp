@@ -16,7 +16,7 @@ void Automata::Init( int iW, int iH )
     // buffer arrays, hold universe data at t0 and t-1
     // these are arrays of the State struct
     // TODO
-    // the state struct holds P, D and O vars. no idea what these can be.
+    // the state struct holds P, D and O vars
     oldarray = new State[width*height];
     newarray = new State[width*height];
 

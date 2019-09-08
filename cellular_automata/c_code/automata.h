@@ -9,6 +9,8 @@
 
 struct Structure
 {
+    // TODO
+    // please give the meaning of each term
     int   Gr;
     float q;
     float H;
@@ -19,6 +21,8 @@ struct Structure
 
 struct Material
 {
+    // TODO
+    // please give the meaning of each term
     float Ta;
     float Qag;
     float Bag;
@@ -37,6 +41,8 @@ struct Material
 
 struct Probability
 {
+    // TODO
+    // please give the meaning of each term
     float Se;
     float Ag;
     float Abg;

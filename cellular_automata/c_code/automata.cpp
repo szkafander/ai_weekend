@@ -111,6 +111,7 @@ void Automata::Probabilities( void )
     int B = 0;
 
     // why are these recomputed at every call? because T can change
+    // these are all in the Arrhenius form, so probably can be vectorized
     pro.Se = exp( -mat.Es/8.314/(T+273.0) );
     pro.Ag = exp( -mat.Qag/8.314/(T+273.0) );
     pro.Abg = exp( -mat.Bag/8.314/(T+273.0) );

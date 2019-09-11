@@ -112,18 +112,19 @@ void Automata::Probabilities( void )
 
     // why are these recomputed at every call? because T can change
     // these are all in the Arrhenius form, so probably can be vectorized
-    pro.Se = exp( -mat.Es/8.314/(T+273.0) );
-    pro.Ag = exp( -mat.Qag/8.314/(T+273.0) );
-    pro.Abg = exp( -mat.Bag/8.314/(T+273.0) );
+    pro.Se = exp( -mat.Es/8.314/(T+273.0) );  //Maxwell-Boltzmann distribution function
+    pro.Ag = exp( -mat.Qag/8.314/(T+273.0) );  //stored energy
+    pro.Abg = exp( -mat.Bag/8.314/(T+273.0) );  //activation energy of allotropic growth
 
-    pro.Rn[0] = exp( -mat.Qrn[0]/8.314/(T+273.0) );
-    pro.Rg[0] = exp( -mat.Qrg[0]/8.314/(T+273.0) );
-    pro.Co[0] = exp( -mat.Qc[0]/8.314/(T+273.0) );
-    pro.Rbn[0] = exp( -mat.Brn[0]/8.314/(T+273.0) );
-    pro.Rbg[0] = exp( -mat.Brg[0]/8.314/(T+273.0) );
-    pro.An[0] = exp( -mat.Qan[0]/8.314/(T+273.0) );
-    pro.Abn[0] = exp( -mat.Ban[0]/8.314/(T+273.0) );
-
+    pro.Rn[0] = exp( -mat.Qrn[0]/8.314/(T+273.0) );  //energy of rex nucleus form
+    pro.Rg[0] = exp( -mat.Qrg[0]/8.314/(T+273.0) );  //energy of rex grain growth
+    pro.Co[0] = exp( -mat.Qc[0]/8.314/(T+273.0) );  //energy of coarsening
+    pro.Rbn[0] = exp( -mat.Brn[0]/8.314/(T+273.0) );  //boundary energy for rex nucleus form
+    pro.Rbg[0] = exp( -mat.Brg[0]/8.314/(T+273.0) );  //boundary energy of rex grain growth (needed for controllig differently the boundary speed and the possible nuclei number)
+    pro.An[0] = exp( -mat.Qan[0]/8.314/(T+273.0) );  //energy for allotropic grain form
+    pro.Abn[0] = exp( -mat.Ban[0]/8.314/(T+273.0) );  //boundary energy at the allotropic transformation
+    
+    //0 is the alpha phase 1 is the beta phase
     pro.Rn[1] = exp( -mat.Qrn[1]/8.314/(T+273.0) );
     pro.Rg[1] = exp( -mat.Qrg[1]/8.314/(T+273.0) );
     pro.Co[1] = exp( -mat.Qc[1]/8.314/(T+273.0) );
@@ -150,6 +151,8 @@ void Automata::Probabilities( void )
             // the sum is used in the exponent here
             // this is some probability update rule that takes a 0-1 random
             // float??
+            // this calculate a random float which later used for calculate if the cell switches state
+            // sometimes a function also calculates it because the program parts were created separately
             proarray[C] = ( (float)rand() / (float)RAND_MAX ) * pow( pro.Rbg[oldarray[C].P], (float)B );
         }
     }
@@ -201,7 +204,10 @@ void Automata::AllotropicNucleation( void )
     // transpiling this is bug-prone
     // should we wait with transpilation until we understand what's 
     // going on here? we need a guy who can sanity check
+    
+    //mat.Ta is the temp of the allotropic transformation, GE is Gibbs Energy
     float GE;
+    //
     if( T <= mat.Ta && oldarray[C].P == 0 ) GE = 0;
     if( T <= mat.Ta && oldarray[C].P == 1 ) GE = mat.Gg[0] * ( 1.0 - exp( - mat.Kg[0] * ( mat.Ta - T ) ) );
     if( T >  mat.Ta && oldarray[C].P == 1 ) GE = 0;
@@ -215,6 +221,7 @@ void Automata::AllotropicNucleation( void )
 
     if( GE > 0.0 && PhaseNeighbour() == 4 && pro.An[oldarray[C].P] > P )
     {
+        //new rantom orientation
         newarray[C].O.c[0] = 1 + rand() % 255;
         newarray[C].O.c[1] = 1 + rand() % 255;
         newarray[C].O.c[2] = 1 + rand() % 255;
@@ -226,10 +233,15 @@ void Automata::AllotropicNucleation( void )
 
 void Automata::RecrystallisationNucleation( void )
 {
-
+    //calculate a rand.num between 0 and 1, multiplied by the stored energy and the boundary energy
+    //then check its neighbours state
     float P = ( (float)rand() / (float)RAND_MAX ) * pro.Se * pow( pro.Rbn[oldarray[C].P], (float)DifferentNeighbour() );
+    
+    //if the cell and its four neighbours are deformed and they in the same phase
+    //and the abowe claculated probability is smaller than the pro.Rn, then rex grain appears
     if( oldarray[C].D == 1 && DeformedNeighbour() == 4 && PhaseNeighbour() == 4 && pro.Rn[oldarray[C].P] > P )
     {
+        //calculate the orientation for the new grain
         newarray[C].O.c[0] = 1 + rand() % 255;
         newarray[C].O.c[1] = 1 + rand() % 255;
         newarray[C].O.c[2] = 1 + rand() % 255;
@@ -280,8 +292,14 @@ void Automata::AllotropicGrowth( void )
 
 void Automata::RecrystallisationGrowth( void )
 {
+    //pro.Se is the stored energy. proarray[C] is calculated above
+    //but the same method as at the RecrystallizationNucleation()
     float P = proarray[C] * pro.Se;
     float max = 0.0;
+    
+    //if the cell is deformed and at least one of its neighbour is rex, then
+    //if the calculated p is smaller than pro.Rg then cell switches state and
+    //chooses the least stored energy from its neighbours
     if( oldarray[C].D == 1 && DeformedNeighbour() < 4 && pro.Rg[oldarray[C].P] > P )
     {
         if( proarray[N] > max && oldarray[N].D == 0 && oldarray[N].P == oldarray[C].P )
@@ -309,9 +327,14 @@ void Automata::RecrystallisationGrowth( void )
 
 void Automata::GrainCoarsening( void )
 {
+    //same probability method as above
     float max = proarray[C];
+    
+    //if the cell and all of its neighbours are in rex state, and the generated probability is smaller than pro.Co
+    //then coarsening occours, the cell change its orientation
     if( DeformedNeighbour() == 0 && oldarray[C].D == 0 && PhaseNeighbour() == 4 && pro.Co[oldarray[C].P] > proarray[C] )
     {
+        //the cell gets orientation ftom the neighbour which has the lowest stored energy
         if( oldarray[C].O.l != oldarray[N].O.l && proarray[N] > max )
         {
             newarray[C] = oldarray[N];

@@ -15,6 +15,7 @@ void CARunner::Init( int W = 512, int H = 512, int S = 10000, int A = 100, int C
 
     // TODO
     // number of samples??
+    // the automaton has 10000 steps and measures every 100 step
     sample   = A;
 
     // TODO
@@ -56,17 +57,17 @@ bool CARunner::TermCriteria( int i, int s )
             if( s < steps ) re = true;
             break;
         // TODO
-        // no idea
+        // if the universe is fully recrystallized then terminate
         case TERMINATE_RFULL:
             if( res[s].Fr[i] < 1.0 ) re = true;
             break;
         // TODO
-        // no idea
+        // if every cell is in phase A then terminate
         case TERMINATE_AFULL:
             if( res[s].Fa[i] < 1.0 ) re = true;
             break;
         // TODO
-        // no idea
+        // if every cell is in phase B then terminate
         case TERMINATE_BFULL:
             if( 1.0 - res[s].Fa[i] < 1.0 ) re = true;
             break;
@@ -80,6 +81,7 @@ void CARunner::Run( char *name, Material M, Structure S, char *strt )
     sprintf( path, "%s/%s", name, name );
     sprintf( proj, "%s", name );
     sprintf( Tstr, "%s", strt );
+    //Tstr: you can add the temperature field to the automaton 
 
     ca.SetMaterial( M );
     ca.SaveMaterialLog( path );

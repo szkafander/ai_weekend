@@ -11,12 +11,12 @@ struct Structure
 {
     // TODO
     // please give the meaning of each term
-    int   Gr;
-    float q;
-    float H;
-    float V;
-    int   Dg;
-    int   Ph;
+    int   Gr; // number of grains
+    float q; // extent of deformation
+    float H; // horizontal probability at directional grain structure generation
+    float V; // vertical probability at diretcional ... (calcuated)
+    int   Dg; // deformed
+    int   Ph; // phase
 };
 
 struct Material

@@ -125,6 +125,20 @@ void Automata::Probabilities( void )
     pro.Abn[0] = exp( -mat.Ban[0]/8.314/(T+273.0) );  //boundary energy at the allotropic transformation
     
     //0 is the alpha phase 1 is the beta phase
+    pro.Se = exp( -mat.Es/8.314/(T+273.0) );
+    pro.Ag = exp( -mat.Qag/8.314/(T+273.0) );
+    pro.Abg = exp( -mat.Bag/8.314/(T+273.0) );
+
+    // these are values for the two phases
+    // this is why these have two elements
+    pro.Rn[0] = exp( -mat.Qrn[0]/8.314/(T+273.0) );
+    pro.Rg[0] = exp( -mat.Qrg[0]/8.314/(T+273.0) );
+    pro.Co[0] = exp( -mat.Qc[0]/8.314/(T+273.0) );
+    pro.Rbn[0] = exp( -mat.Brn[0]/8.314/(T+273.0) );
+    pro.Rbg[0] = exp( -mat.Brg[0]/8.314/(T+273.0) );
+    pro.An[0] = exp( -mat.Qan[0]/8.314/(T+273.0) );
+    pro.Abn[0] = exp( -mat.Ban[0]/8.314/(T+273.0) );
+
     pro.Rn[1] = exp( -mat.Qrn[1]/8.314/(T+273.0) );
     pro.Rg[1] = exp( -mat.Qrg[1]/8.314/(T+273.0) );
     pro.Co[1] = exp( -mat.Qc[1]/8.314/(T+273.0) );
@@ -143,6 +157,7 @@ void Automata::Probabilities( void )
             // this is the formula
             // these 4 lines sum up the number of neighbors that have states
             // that do not equal the state of the center pixel
+            // is it actually the orientation field that separates the grains?
             if( oldarray[C].O.l != oldarray[N].O.l ) B++;
             if( oldarray[C].O.l != oldarray[S].O.l ) B++;
             if( oldarray[C].O.l != oldarray[W].O.l ) B++;
@@ -153,6 +168,8 @@ void Automata::Probabilities( void )
             // float??
             // this calculate a random float which later used for calculate if the cell switches state
             // sometimes a function also calculates it because the program parts were created separately
+            // pro.Rbg[i] is the probability constant for the ith phase
+            // the random term is the dice roll. the multiplier is the prob constant ** B
             proarray[C] = ( (float)rand() / (float)RAND_MAX ) * pow( pro.Rbg[oldarray[C].P], (float)B );
         }
     }
@@ -160,6 +177,8 @@ void Automata::Probabilities( void )
 
 // the following 3 methods can be implemented with convolution
 // this appears to be the above different neighbor counting routine factored out
+// since O.l is continuous, not trivial to implement as conv
+// but not hard either
 int Automata::DifferentNeighbour( void )
 {
     int count = 0;
@@ -172,6 +191,7 @@ int Automata::DifferentNeighbour( void )
 
 // this counts the deformed neighbors, 
 // i.e., those neighbor pixels for which D = 1
+// trivial to implement as conv
 int Automata::DeformedNeighbour( void )
 {
     int count = 0;
@@ -183,6 +203,7 @@ int Automata::DeformedNeighbour( void )
 }
 
 // this counts the neighbor pixels that have the same phase as the center pixel
+// trivial to implement as conv by 2 conv kernels
 int Automata::PhaseNeighbour( void )
 {
     int count = 0;

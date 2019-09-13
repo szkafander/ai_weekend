@@ -1,0 +1,38 @@
+[Material]
+[Tall]	911
+[Qallg]	50000
+[Ballg]	15000
+[Estor]	10000
+[PHASE0]
+[Qrexn]	500000
+[Brexn]	10000
+[Qrexg]	40000
+[Brexg]	15000
+[Qc]	150000
+[Qallg]	140000
+[Ballg]	15000
+[Gg]	20000
+[Kg]	0.03
+[PHASE1]
+[Qrexn]	140000
+[Brexn]	15000
+[Qrexg]	50000
+[Brexg]	15000
+[Qc]	50000
+[Qalln]	140000
+[Balln]	15000
+[Gg]	20000
+[Kg]	0.03
+[Structure]
+[q]	0.5
+[grain]	100
+[def]	1
+[phase]	0
+[Process]
+[W]	300
+[H]	300
+[proj]	T600
+[step]	100
+[samp]	50
+[term]	1
+[T]	600

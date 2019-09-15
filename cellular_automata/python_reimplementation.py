@@ -7,7 +7,6 @@ Created on Thu Sep 12 23:41:05 2019
 import numpy as np
 
 from scipy import signal
-from tabulate import tabulate
 from typing import Optional, Tuple, Union
 
 
@@ -24,8 +23,14 @@ default_kernel = dirichlet_kernel
 
 # methods related to reading material properties
 # -----------------------------------------------------------------------------
-# these are the category names
-CATS = ("Material", "PHASE0", "PHASE1", "Process", "Structure")
+# these are the category and property names
+CATS = {"Material": {"Tall", "Qallg", "Ballg", "Estor"},
+        "PHASE0": {"Qrexn", "Brexn", "Qrexg", "Brexg", "Qc", "Qalln", "Balln",
+               "Gg", "Kg"},
+        "PHASE1": {"Qrexn", "Brexn", "Qrexg", "Brexg", "Qc", "Qalln", "Balln",
+               "Gg", "Kg"},
+        "Process": {"W", "H", "proj", "step", "samp", "term", "T"},
+        "Structure": {"q", "grain", "def", "phase"}}
 
 def _clear_string(string: str) -> str:
     return string.strip().replace("[", "").replace("]", "")
@@ -33,6 +38,18 @@ def _clear_string(string: str) -> str:
 
 def _parse_line(line: str) -> Tuple:
     return _clear_string(line).split("\t")
+
+
+def _check_constants(constants: dict) -> None:
+    for category in CATS:
+        if category not in constants:
+            raise ValueError(
+                    "Category {} not found in constants.".format(category))
+        for prop in CATS[category]:
+            if prop not in constants[category]:
+                raise ValueError(
+                        "Property {} not found in category {}.".format(
+                                prop, category))
 
 
 def read_constants(filename: str) -> dict:
@@ -52,20 +69,19 @@ def read_constants(filename: str) -> dict:
             if k == 0:
                 raise ValueError("The first line should be a category.")
             prop, value = parsed
-            constants[category].update({prop: value})
+            constants[category].update({prop: float(value)})
         else:
             raise ValueError("Invalid parsed line {}".format(parsed))
+    _check_constants(constants)
     return constants
 
 
 # methods related to updating probabilities
 # -----------------------------------------------------------------------------
 # these are the order of property names for vectorized Arrhenius rate calc
-MATERIAL_PROPS = ("Tall", "Qallg", "Ballg", "Estor")
-PHASE_PROPS = ("Qrexn", "Brexn", "Qrexg", "Brexg", "Qc", "Qalln", "Balln",
-               "Gg", "Kg")
-STRUCT_PROPS = ("q", "grain", "def", "phase")
-PROCESS_PROPS = ("W", "H", "proj", "step", "samp", "term", "T")
+MAT_ORDER = ("Estor", "Qallg", "Ballg")
+PHASE_ORDER = ("Qrexn", "Qrexg", "Qc", "Brexn", "Brexg", "Qalln", "Balln")
+PROB_PROPS = ("Se", "Ag", "Abg", "Rn", "Rg", "Co", "Rbn", "Rgb", "An", "Abn")
 
 def arrhenius(
         temperature: Union[float, np.ndarray],
@@ -78,10 +94,35 @@ def arrhenius(
     return pre_exponential * np.exp(- activation_energy / 8.314 / temperature)
 
 
-def probabilities(temperature: float) -> dict:
-    """ Pull mat props into np array, apply Arrhenius formula vectorized, then 
-    fill probabilities dict. """
-    pass
+class Probabilities:
+
+    def __init__(self, constants: dict) -> None:
+        self._constants = None
+        self.values = None
+        self._init_constants(constants)
+
+    def __call__(self, temperature: float) -> dict:
+        return self.calculate(temperature)
+
+    def _init_constants(self, constants) -> None:
+        _constants = []
+        for prop in MAT_ORDER:
+            _constants.append(constants["Material"][prop])
+        for prop in PHASE_ORDER:
+            _constants.append(constants["PHASE0"][prop])
+        for prop in PHASE_ORDER:
+            _constants.append(constants["PHASE1"][prop])
+        self._constants = np.array(_constants)
+
+    def calculate(self, temperature: float) -> None:
+        self.values = arrhenius(temperature, self._constants)
+        probabilities = {}
+        for k, prop in enumerate(PROB_PROPS):
+            if k < 3:
+                probabilities[prop] = self.values[k]
+            else:
+                probabilities[prop] = [self.values[k], self.values[k + 7]]
+        return probabilities
 
 
 # methods that act on fields

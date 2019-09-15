@@ -260,6 +260,7 @@ void Automata::RecrystallisationNucleation( void )
     
     //if the cell and its four neighbours are deformed and they in the same phase
     //and the abowe claculated probability is smaller than the pro.Rn, then rex grain appears
+    // TODO - with the constants in material.txt, pro.Rn is a very small number (around 1e-30). is that normal?
     if( oldarray[C].D == 1 && DeformedNeighbour() == 4 && PhaseNeighbour() == 4 && pro.Rn[oldarray[C].P] > P )
     {
         //calculate the orientation for the new grain

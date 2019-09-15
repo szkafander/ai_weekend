@@ -9,8 +9,8 @@
 [Qrexg]	40000
 [Brexg]	15000
 [Qc]	150000
-[Qallg]	140000
-[Ballg]	15000
+[Qalln]	140000
+[Balln]	15000
 [Gg]	20000
 [Kg]	0.03
 [PHASE1]
@@ -31,7 +31,7 @@
 [Process]
 [W]	300
 [H]	300
-[proj]	T600
+[proj]	600
 [step]	100
 [samp]	50
 [term]	1

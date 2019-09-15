@@ -19,6 +19,7 @@
 [Qrexg]	50000
 [Brexg]	15000
 [Qc]	50000
+// TODO - why are these not called Qallg and Ballg like above?
 [Qalln]	140000
 [Balln]	15000
 [Gg]	20000
@@ -31,6 +32,7 @@
 [Process]
 [W]	300
 [H]	300
+// TODO - what is T600?
 [proj]	T600
 [step]	100
 [samp]	50

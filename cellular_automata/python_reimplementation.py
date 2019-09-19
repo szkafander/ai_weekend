@@ -10,15 +10,52 @@ from scipy import signal
 from typing import Optional, Tuple, Union
 
 
-dirichlet_kernel = np.array([[0, 1, 0],
+# kernels
+# all kernels are assumed to be size 3
+def get_kernel(kernel_type: str, n_dims: int) -> Tuple[np.ndarray, list]:
+    """ Returns a kernel matrix and a list of offsets of non-zero values. """
+    if n_dims > 3:
+        raise ValueError("n_dims must be at most 3.")
+    if kernel_type not in ("moore", "neumann"):
+        raise ValueError("kernel_type must be either 'moore' or 'neumann'.")
+    if n_dims == 1:
+        return np.array([1, 0, 1])
+    elif n_dims == 2:
+        if kernel_type == "moore":
+            return np.array([[0, 1, 0],
                              [1, 0, 1],
                              [0, 1, 0]])
+        elif kernel_type == "neumann":
+            return np.array([[1, 1, 1],
+                             [1, 0, 1],
+                             [1, 1, 1]])
+    elif n_dims == 3:
+        if kernel_type == "moore":
+            return np.array([[[0, 0, 0],
+                              [0, 1, 0],
+                              [0, 0, 0]],
 
-neumann_kernel = np.array([[1, 1, 1],
-                           [1, 0, 1],
-                           [1, 1, 1]])
+                             [[0, 1, 0],
+                              [1, 0, 1],
+                              [0, 1, 0]],
 
-default_kernel = dirichlet_kernel
+                             [[0, 0, 0],
+                              [0, 1, 0],
+                              [0, 0, 0]]])
+        elif kernel_type == "neumann":
+            return np.array([[[1, 1, 1],
+                              [1, 1, 1],
+                              [1, 1, 1]],
+
+                             [[1, 1, 1],
+                              [1, 0, 1],
+                              [1, 1, 1]],
+
+                             [[1, 1, 1],
+                              [1, 1, 1],
+                              [1, 1, 1]]])
+
+default_kernel = get_kernel("moore", n_dims=2)
 
 
 # methods related to reading material properties
@@ -123,6 +160,13 @@ class Probabilities:
             else:
                 probabilities[prop] = [self.values[k], self.values[k + 7]]
         return probabilities
+
+
+def calculate_switching_probabilities(
+        orientation_field: np.ndarray,
+        probabilities: dict
+    ) -> np.ndarray:
+    pass
 
 
 # methods that act on fields

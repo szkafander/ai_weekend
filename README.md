@@ -1,7 +1,7 @@
 # ai_weekend
 university seminar material
 
-# list of papers to read, 07/28 2019
+# list of papers to read
 Adam: https://arxiv.org/pdf/1412.6980.pdf
 Batchnorm: http://arxiv.org/pdf/1502.03167
 Dropout: http://jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf
